@@ -86,8 +86,11 @@ public class NinjaAPI {
         String url = NinjaConstants.ITEMS_URL + league + NinjaConstants.TYPE_TAG + itemType + NinjaConstants.LANGUAGE_TAG + locale;
 
         try ( InputStreamReader isr = new InputStreamReader ( new URI ( url ).toURL ( ).openStream ( ) ) ) {
+            Optional < NinjaPOJO > opt = findInJson ( itemName , isr , NinjaItem.class );
 
-            return ( NinjaItem ) findInJson ( itemName , isr , NinjaItem.class );
+            if ( opt.isPresent() ) {
+                return ( NinjaItem ) opt.get();
+            }
 
         } catch ( IOException | URISyntaxException e ) {
             log.severe ( e.getMessage ( ) );
@@ -142,8 +145,11 @@ public class NinjaAPI {
         final String url = NinjaConstants.CURRENCY_URL + league + NinjaConstants.TYPE_TAG + "Currency" + NinjaConstants.LANGUAGE_TAG + locale;
 
         try ( InputStreamReader isr = new InputStreamReader ( new URI ( url ).toURL ( ).openStream ( ) ) ) {
+            Optional < NinjaPOJO > opt = findInJson ( currencyName , isr , NinjaCurrency.class );
 
-            return ( NinjaCurrency ) findInJson ( currencyName , isr , NinjaCurrency.class );
+            if ( opt.isPresent() ) {
+                return ( NinjaCurrency ) opt.get();
+            }
 
         } catch ( IOException | URISyntaxException e ) {
             log.severe ( e.getMessage ( ) );
@@ -164,8 +170,11 @@ public class NinjaAPI {
         final String url = NinjaConstants.CURRENCY_URL + league + NinjaConstants.TYPE_TAG + "Fragment" + NinjaConstants.LANGUAGE_TAG + locale;
 
         try ( InputStreamReader isr = new InputStreamReader ( new URI ( url ).toURL ( ).openStream ( ) ) ) {
+            Optional < NinjaPOJO > opt = findInJson ( fragmentName , isr , NinjaCurrency.class );
 
-            return ( NinjaCurrency ) findInJson ( fragmentName , isr , NinjaCurrency.class );
+            if ( opt.isPresent() ) {
+                return ( NinjaCurrency ) opt.get();
+            }
 
         } catch ( IOException | URISyntaxException e ) {
             log.severe ( e.getMessage ( ) );
@@ -360,7 +369,7 @@ public class NinjaAPI {
      * @param isr  The InputStreamReader of the poe.ninja URL the JsonReader uses.
      * @param type The class Type. NinjaCurrency or NinjaItem will be passed.
      */
-    private NinjaPOJO findInJson ( String name , InputStreamReader isr , Type type ) {
+    private Optional < NinjaPOJO > findInJson ( String name , InputStreamReader isr , Type type ) {
 
         try ( JsonReader reader = gson.newJsonReader ( isr ) ) {
             reader.beginObject ( );
@@ -371,7 +380,7 @@ public class NinjaAPI {
                 NinjaPOJO np = gson.fromJson ( reader , type );
 
                 if ( np.getName ( ).equalsIgnoreCase ( name ) ) {
-                    return np;
+                    return Optional.of( np );
                 }
             }
 
@@ -379,7 +388,7 @@ public class NinjaAPI {
             log.severe ( e.getMessage ( ) );
         }
 
-        return null;
+        return Optional.empty();
     }
 }
 
